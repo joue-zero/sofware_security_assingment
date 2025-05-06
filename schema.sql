@@ -55,10 +55,10 @@ CREATE TABLE logs (
 
 -- Insert initial users (A2:2017 - Broken Authentication - Weak passwords)
 INSERT INTO users (username, password, email, role) VALUES
-('admin', 'admin123', 'admin@bank.com', 'admin'),
-('user1', 'password1', 'user1@bank.com', 'user'),
-('user2', 'password2', 'user2@bank.com', 'user'),
-('user3', 'password3', 'user3@bank.com', 'user');
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@bank.com', 'admin'),
+('user1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user1@bank.com', 'user'),
+('user2', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user2@bank.com', 'user'),
+('user3', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user3@bank.com', 'user');
 
 -- Insert accounts for users
 INSERT INTO accounts (user_id, account_number, balance) VALUES

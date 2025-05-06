@@ -10,10 +10,10 @@ require_once 'header.php';
     <h2>Available Accounts</h2>
     <p>You can use the following test accounts:</p>
     <ul>
-        <li>Admin: username: admin, password: admin123</li>
-        <li>User 1: username: user1, password: password1</li>
-        <li>User 2: username: user2, password: password2</li>
-        <li>User 3: username: user3, password: password3</li>
+        <li>Admin: username: admin, password: password</li>
+        <li>User 1: username: user1, password: password</li>
+        <li>User 2: username: user2, password: password</li>
+        <li>User 3: username: user3, password: password</li>
     </ul>
     
     <h2>Features</h2>
