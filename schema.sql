@@ -45,6 +45,14 @@ CREATE TABLE complaints (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE logs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    username VARCHAR(50),
+    action VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Insert initial users (A2:2017 - Broken Authentication - Weak passwords)
 INSERT INTO users (username, password, email, role) VALUES
 ('admin', 'admin123', 'admin@bank.com', 'admin'),

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config.php';
+require_once 'log_action.php';
 
 if (isset($_SESSION['user_id'])) {
     header("Location: dashboard.php");
@@ -23,6 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // A3:2017 - Sensitive Data Exposure - Storing sensitive data in session
         $_SESSION['password'] = $password;
+        
+        log_action($conn, $user['id'], $user['username'], 'Logged in');
         
         header("Location: dashboard.php");
         exit();

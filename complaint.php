@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config.php';
+require_once 'log_action.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -25,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         mysqli_query($conn, $query);
         
         $success = "Complaint submitted successfully!";
+        log_action($conn, $_SESSION['user_id'], $_SESSION['username'], "Filed a complaint: $description");
     }
 }
 

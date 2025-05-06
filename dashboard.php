@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config.php';
+require_once 'log_action.php';
 
 // A7:2017 - Cross-Site Scripting (XSS) vulnerability - No input sanitization
 $username = $_SESSION['username'];
@@ -32,6 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['transfer'])) {
     // A8:2017 - Insecure Deserialization - No validation of transaction data
     $query = "INSERT INTO transactions (from_account, to_account, amount) VALUES ('$from_account', '$to_account', $amount)";
     mysqli_query($conn, $query);
+    
+    log_action($conn, $_SESSION['user_id'], $_SESSION['username'], "Transferred $amount from $from_account to $to_account");
     
     $success = "Transfer successful!";
 }

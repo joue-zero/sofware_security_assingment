@@ -28,6 +28,8 @@ function log_action($action) {
 log_action("Accessed admin dashboard");
 
 require_once 'header.php';
+
+$result = mysqli_query($conn, "SELECT * FROM logs ORDER BY created_at DESC");
 ?>
 
 <div class="card">
@@ -70,6 +72,26 @@ require_once 'header.php';
             <?php endwhile; ?>
         </table>
     </div>
+
+    <div class="section">
+        <h3>Action Logs</h3>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Action</th>
+            </tr>
+            <?php while ($log = mysqli_fetch_assoc($result)): ?>
+            <tr>
+                <td><?php echo $log['created_at']; ?></td>
+                <td><?php echo $log['username']; ?></td>
+                <td><?php echo $log['action']; ?></td>
+            </tr>
+            <?php endwhile; ?>
+        </table>
+    </div>
 </div>
+
+<li><a href="admin.php?view=logs">View Logs</a></li>
 
 <?php require_once 'footer.php'; ?> 

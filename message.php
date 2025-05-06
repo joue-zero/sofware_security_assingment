@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config.php';
+require_once 'log_action.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -14,6 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // A7:2017 - Cross-Site Scripting (XSS) - No input sanitization
     $query = "INSERT INTO messages (user_id, message) VALUES ($user_id, '$message')";
     mysqli_query($conn, $query);
+    
+    log_action($conn, $_SESSION['user_id'], $_SESSION['username'], "Sent a message: $message");
     
     $success = "Message sent successfully!";
 }
