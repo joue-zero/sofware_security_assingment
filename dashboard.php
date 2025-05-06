@@ -14,25 +14,33 @@ if (!isset($_SESSION['user_id'])) {
 
 // Get user accounts
 $user_id = $_SESSION['user_id'];
-$query = "SELECT * FROM accounts WHERE user_id = $user_id";
-$accounts = mysqli_query($conn, $query);
+$stmt = $conn->prepare("SELECT * FROM accounts WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$accounts = $stmt->get_result();
 
 // Handle transfer
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['transfer'])) {
+    // FIX: CSRF token check
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("Invalid CSRF token");
+    }
     $from_account = $_POST['from_account'];
     $to_account = $_POST['to_account'];
     $amount = $_POST['amount'];
     
-    // A1:2017 - Injection vulnerability - Direct SQL query
-    $query = "UPDATE accounts SET balance = balance - $amount WHERE account_number = '$from_account'";
-    mysqli_query($conn, $query);
+    // FIX: Use prepared statements for all queries
+    $stmt = $conn->prepare("UPDATE accounts SET balance = balance - ? WHERE account_number = ?");
+    $stmt->bind_param("ds", $amount, $from_account);
+    $stmt->execute();
     
-    $query = "UPDATE accounts SET balance = balance + $amount WHERE account_number = '$to_account'";
-    mysqli_query($conn, $query);
+    $stmt = $conn->prepare("UPDATE accounts SET balance = balance + ? WHERE account_number = ?");
+    $stmt->bind_param("ds", $amount, $to_account);
+    $stmt->execute();
     
-    // A8:2017 - Insecure Deserialization - No validation of transaction data
-    $query = "INSERT INTO transactions (from_account, to_account, amount) VALUES ('$from_account', '$to_account', $amount)";
-    mysqli_query($conn, $query);
+    $stmt = $conn->prepare("INSERT INTO transactions (from_account, to_account, amount) VALUES (?, ?, ?)");
+    $stmt->bind_param("ssd", $from_account, $to_account, $amount);
+    $stmt->execute();
     
     log_action($conn, $_SESSION['user_id'], $_SESSION['username'], "Transferred $amount from $from_account to $to_account");
     
@@ -43,7 +51,7 @@ require_once 'header.php';
 ?>
 
 <div class="card">
-    <h2>Welcome, <?php echo $username; ?></h2>
+    <h2>Welcome, <?php echo htmlspecialchars($username); ?></h2>
     
     <h3>Your Accounts</h3>
     <table>
@@ -51,10 +59,10 @@ require_once 'header.php';
             <th>Account Number</th>
             <th>Balance</th>
         </tr>
-        <?php while ($account = mysqli_fetch_assoc($accounts)): ?>
+        <?php while ($account = $accounts->fetch_assoc()): ?>
         <tr>
-            <td><?php echo $account['account_number']; ?></td>
-            <td>$<?php echo $account['balance']; ?></td>
+            <td><?php echo htmlspecialchars($account['account_number']); ?></td>
+            <td>$<?php echo htmlspecialchars($account['balance']); ?></td>
         </tr>
         <?php endwhile; ?>
     </table>
@@ -65,6 +73,7 @@ require_once 'header.php';
     <?php if (isset($success)) echo "<p class='success'>$success</p>"; ?>
     <form method="POST">
         <input type="hidden" name="transfer" value="1">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         <div class="form-group">
             <input type="text" name="from_account" placeholder="From Account" required>
         </div>

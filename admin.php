@@ -46,10 +46,10 @@ $result = mysqli_query($conn, "SELECT * FROM logs ORDER BY created_at DESC");
             </tr>
             <?php while ($complaint = mysqli_fetch_assoc($complaints)): ?>
             <tr>
-                <td><?php echo $complaint['username']; ?></td>
-                <td><a href="<?php echo $complaint['file_path']; ?>"><?php echo $complaint['file_name']; ?></a></td>
-                <td><?php echo $complaint['description']; ?></td>
-                <td><?php echo $complaint['created_at']; ?></td>
+                <td><?php echo htmlspecialchars($complaint['username']); ?></td>
+                <td><a href="<?php echo htmlspecialchars($complaint['file_path']); ?>"><?php echo htmlspecialchars($complaint['file_name']); ?></a></td>
+                <td><?php echo htmlspecialchars($complaint['description']); ?></td>
+                <td><?php echo htmlspecialchars($complaint['created_at']); ?></td>
             </tr>
             <?php endwhile; ?>
         </table>
@@ -65,9 +65,9 @@ $result = mysqli_query($conn, "SELECT * FROM logs ORDER BY created_at DESC");
             </tr>
             <?php while ($message = mysqli_fetch_assoc($messages)): ?>
             <tr>
-                <td><?php echo $message['username']; ?></td>
-                <td><?php echo $message['message']; ?></td>
-                <td><?php echo $message['created_at']; ?></td>
+                <td><?php echo htmlspecialchars($message['username']); ?></td>
+                <td><?php echo htmlspecialchars($message['message']); ?></td>
+                <td><?php echo htmlspecialchars($message['created_at']); ?></td>
             </tr>
             <?php endwhile; ?>
         </table>
@@ -83,9 +83,9 @@ $result = mysqli_query($conn, "SELECT * FROM logs ORDER BY created_at DESC");
             </tr>
             <?php while ($log = mysqli_fetch_assoc($result)): ?>
             <tr>
-                <td><?php echo $log['created_at']; ?></td>
-                <td><?php echo $log['username']; ?></td>
-                <td><?php echo $log['action']; ?></td>
+                <td><?php echo htmlspecialchars($log['created_at']); ?></td>
+                <td><?php echo htmlspecialchars($log['username']); ?></td>
+                <td><?php echo htmlspecialchars($log['action']); ?></td>
             </tr>
             <?php endwhile; ?>
         </table>

@@ -9,19 +9,22 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // FIX: CSRF token check
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("Invalid CSRF token");
+    }
     $user_id = $_SESSION['user_id'];
     $message = $_POST['message'];
-    
-    // A7:2017 - Cross-Site Scripting (XSS) - No input sanitization
-    $query = "INSERT INTO messages (user_id, message) VALUES ($user_id, '$message')";
-    mysqli_query($conn, $query);
-    
+
+    // FIX: Use prepared statements
+    $stmt = $conn->prepare("INSERT INTO messages (user_id, message) VALUES (?, ?)");
+    $stmt->bind_param("is", $user_id, $message);
+    $stmt->execute();
+
     log_action($conn, $_SESSION['user_id'], $_SESSION['username'], "Sent a message: $message");
-    
     $success = "Message sent successfully!";
 }
 
-// Get messages
 $query = "SELECT m.*, u.username FROM messages m JOIN users u ON m.user_id = u.id ORDER BY m.created_at DESC";
 $messages = mysqli_query($conn, $query);
 
@@ -33,6 +36,7 @@ require_once 'header.php';
     <?php if (isset($success)) echo "<p class='success'>$success</p>"; ?>
     
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         <div class="form-group">
             <textarea name="message" placeholder="Type your message" required></textarea>
         </div>
@@ -46,8 +50,8 @@ require_once 'header.php';
     <h3>Message History</h3>
     <?php while ($msg = mysqli_fetch_assoc($messages)): ?>
     <div class="message">
-        <strong><?php echo $msg['username']; ?></strong> (<?php echo $msg['created_at']; ?>):<br>
-        <?php echo $msg['message']; ?>
+        <strong><?php echo htmlspecialchars($msg['username']); ?></strong> (<?php echo htmlspecialchars($msg['created_at']); ?>):<br>
+        <?php echo htmlspecialchars($msg['message']); ?>
     </div>
     <?php endwhile; ?>
 </div>

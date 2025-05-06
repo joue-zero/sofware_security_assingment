@@ -1,23 +1,26 @@
 <?php
 session_start();
 require_once 'config.php';
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
 $user_id = $_SESSION['user_id'];
 
-// A1:2017 - Injection vulnerability - Direct SQL query without prepared statements
-$query = "SELECT t.*, 
-          (SELECT account_number FROM accounts WHERE account_number = t.from_account) as from_acc,
-          (SELECT account_number FROM accounts WHERE account_number = t.to_account) as to_acc
-          FROM transactions t
-          WHERE t.from_account IN (SELECT account_number FROM accounts WHERE user_id = $user_id)
-          OR t.to_account IN (SELECT account_number FROM accounts WHERE user_id = $user_id)
-          ORDER BY t.created_at DESC";
-
-$transactions = mysqli_query($conn, $query);
+// FIX: Use prepared statements
+$stmt = $conn->prepare(
+    "SELECT t.*, 
+        (SELECT account_number FROM accounts WHERE account_number = t.from_account) as from_acc,
+        (SELECT account_number FROM accounts WHERE account_number = t.to_account) as to_acc
+    FROM transactions t
+    WHERE t.from_account IN (SELECT account_number FROM accounts WHERE user_id = ?)
+    OR t.to_account IN (SELECT account_number FROM accounts WHERE user_id = ?)
+    ORDER BY t.created_at DESC"
+);
+$stmt->bind_param("ii", $user_id, $user_id);
+$stmt->execute();
+$transactions = $stmt->get_result();
 
 require_once 'header.php';
 ?>
@@ -33,13 +36,13 @@ require_once 'header.php';
             <th>Amount</th>
             <th>Description</th>
         </tr>
-        <?php while ($transaction = mysqli_fetch_assoc($transactions)): ?>
+        <?php while ($transaction = $transactions->fetch_assoc()): ?>
         <tr>
-            <td><?php echo $transaction['created_at']; ?></td>
-            <td><?php echo $transaction['from_acc']; ?></td>
-            <td><?php echo $transaction['to_acc']; ?></td>
-            <td>$<?php echo $transaction['amount']; ?></td>
-            <td><?php echo $transaction['description']; ?></td>
+            <td><?php echo htmlspecialchars($transaction['created_at']); ?></td>
+            <td><?php echo htmlspecialchars($transaction['from_acc']); ?></td>
+            <td><?php echo htmlspecialchars($transaction['to_acc']); ?></td>
+            <td>$<?php echo htmlspecialchars($transaction['amount']); ?></td>
+            <td><?php echo htmlspecialchars($transaction['description']); ?></td>
         </tr>
         <?php endwhile; ?>
     </table>
