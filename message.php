@@ -11,9 +11,8 @@ if (!isset($_SESSION['user_id'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user_id'];
     $message = $_POST['message'];
-    
     // A7:2017 - Cross-Site Scripting (XSS) - No input sanitization
-    $query = "INSERT INTO messages (user_id, message) VALUES ($user_id, '$message')";
+    $query = "INSERT INTO messages (user_id, message) VALUES ($user_id, $message)";
     mysqli_query($conn, $query);
     
     log_action($conn, $_SESSION['user_id'], $_SESSION['username'], "Sent a message: $message");

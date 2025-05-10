@@ -6,7 +6,8 @@ This is a deliberately vulnerable banking application that demonstrates OWASP To
 
 1. Create a MySQL database and import the schema:
 ```bash
-mysql -u root -p < schema.sql
+mysql -u root -p1234
+source C:\B\school\security\assingment\schema.sql
 ```
 
 2. Configure the database connection in `config.php`
